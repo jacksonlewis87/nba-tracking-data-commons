@@ -1,7 +1,33 @@
+from dataclasses import dataclass
+import json
 import pytest
 from unittest.mock import Mock, patch, mock_open
 
-from utils import load_json, write_json, list_files_in_directory, load_tensor
+from utils import DataClassEncoder, load_json, write_json, list_files_in_directory, load_tensor
+
+
+def test_dataclass_encoder():
+    @dataclass
+    class DummyDataClass0:
+        field_0: int
+        field_1: str
+
+    @dataclass
+    class DummyDataClass1:
+        field_0: int
+        field_1: DummyDataClass0
+
+    data = DummyDataClass1(
+        field_0=1,
+        field_1=DummyDataClass0(
+            field_0=2,
+            field_1="some-value",
+        ),
+    )
+
+    result = json.dumps(data, cls=DataClassEncoder)
+
+    assert result == '{"field_0": 1, "field_1": {"field_0": 2, "field_1": "some-value"}}'
 
 
 @patch("builtins.open", new_callable=mock_open)
@@ -16,16 +42,20 @@ def test_load_json(mock_json, mock_builtins_open):
     assert result == mock_json.load.return_value
 
 
+@pytest.mark.parametrize("encoder", [None, Mock()])
 @patch("builtins.open", new_callable=mock_open)
 @patch("utils.json")
-def test_write_json(mock_json, mock_builtins_open):
+def test_write_json(mock_json, mock_builtins_open, encoder):
     path = "dummy_path"
     json_object = Mock()
 
-    write_json(path=path, json_object=json_object)
+    if encoder:
+        write_json(path=path, json_object=json_object, encoder=encoder)
+    else:
+        write_json(path=path, json_object=json_object)
 
     mock_builtins_open.assert_called_once_with(path, "w")
-    mock_json.dump.assert_called_once_with(json_object, fp=mock_builtins_open.return_value)
+    mock_json.dump.assert_called_once_with(json_object, cls=encoder, fp=mock_builtins_open.return_value)
 
 
 @pytest.mark.parametrize(

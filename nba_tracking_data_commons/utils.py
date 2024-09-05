@@ -1,6 +1,14 @@
 import json
 import os
+from dataclasses import asdict
 from torch import load as torch_load
+
+
+class DataClassEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if hasattr(obj, "__dataclass_fields__"):
+            return asdict(obj)
+        return super().default(obj)
 
 
 def load_json(path: str):
@@ -10,9 +18,9 @@ def load_json(path: str):
     return json_file
 
 
-def write_json(path: str, json_object):
+def write_json(path: str, json_object, encoder=None):
     with open(path, "w") as f:
-        json.dump(json_object, fp=f)
+        json.dump(json_object, cls=encoder, fp=f)
 
 
 def list_files_in_directory(path: str, suffix: str = None):
