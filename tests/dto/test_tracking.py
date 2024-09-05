@@ -32,6 +32,7 @@ def test_event_initialization():
     event = Event(
         game_id="game123",
         event_id=1,
+        period=2,
         game_clock_start=0.0,
         game_clock_end=10.0,
         wall_clock_start=100.0,
@@ -45,6 +46,7 @@ def test_event_initialization():
 
     assert event.game_id == "game123"
     assert event.event_id == 1
+    assert event.period == 2
     assert event.game_clock_start == 0.0
     assert event.game_clock_end == 10.0
     assert event.wall_clock_start == 100.0

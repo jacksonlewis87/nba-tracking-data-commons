@@ -21,6 +21,7 @@ class Frame:
 class Event:
     game_id: str
     event_id: int
+    period: int
     game_clock_start: float
     game_clock_end: float
     wall_clock_start: float
