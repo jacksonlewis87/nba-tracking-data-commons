@@ -1,4 +1,4 @@
-from dto.tracking import Coordinate, Frame, Event
+from nba_tracking_data_commons.dto.tracking import Coordinate, Frame, Event
 
 
 def test_coordinate_initialization():
