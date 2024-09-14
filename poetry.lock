@@ -1531,7 +1531,7 @@ test = ["cloudpickle (>=1.3)", "coverage (==7.3.1)", "fastapi", "numpy (>=1.17.2
 
 [[package]]
 name = "pytorch-model-commons"
-version = "0.1.8"
+version = "0.1.9"
 description = "Common code for model development, training, and evaluation in pytorch"
 optional = false
 python-versions = "^3.10"
@@ -1546,8 +1546,8 @@ torch = "~2.4.0"
 [package.source]
 type = "git"
 url = "https://github.com/jacksonlewis87/pytorch-model-commons.git"
-reference = "v0.1.8"
-resolved_reference = "177de5595a0acc8fa6d384fb750b3215e25b8122"
+reference = "v0.1.9"
+resolved_reference = "324b81632ede9b7ded0ef9c88d686c4362f4385d"
 
 [[package]]
 name = "pyyaml"
@@ -1933,4 +1933,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "fd9418094e37085035cb60899c01b9805fe77081c0131d16870f1936bdf6bd7e"
+content-hash = "06c7f392191e18e07a0f168ad2118c1e195e44a41fd2f7e73e1565d7b876bd62"
