@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nba-tracking-data-commons"
-version = "0.1.6"
+version = "0.1.7"
 description = "Repository housing common functionality for NBA SportVU tracking data"
 authors = ["Jackson Lewis"]
 readme = "README.md"
@@ -14,7 +14,7 @@ addopts = "-p no:cacheprovider"
 python = "^3.10"
 pytorch-lightning = "~2.4.0"
 torch = "~2.4.0"
-pytorch_model_commons = { git = "https://github.com/jacksonlewis87/pytorch-model-commons.git", tag = "v0.1.9" }
+pytorch_model_commons = { git = "https://github.com/jacksonlewis87/pytorch-model-commons.git", tag = "v0.1.10" }
 
 matplotlib = "^3.9.0"
 [tool.poetry.group.dev.dependencies]
