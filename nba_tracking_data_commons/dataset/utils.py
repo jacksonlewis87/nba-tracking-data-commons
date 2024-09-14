@@ -1,9 +1,9 @@
 import os
 from random import shuffle
 
-from constants import EVAL_GAME_IDS
+from nba_tracking_data_commons.constants import EVAL_GAME_IDS
 from pytorch_model_commons.data.data_config import DataConfig
-from utils import load_json, write_json
+from nba_tracking_data_commons.utils import load_json, write_json
 
 
 def get_data_split(config: DataConfig, game_ids: list[str], stage: str):

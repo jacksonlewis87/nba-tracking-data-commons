@@ -3,7 +3,13 @@ import json
 import pytest
 from unittest.mock import Mock, patch, mock_open
 
-from utils import DataClassEncoder, load_json, write_json, list_files_in_directory, load_tensor
+from nba_tracking_data_commons.utils import (
+    DataClassEncoder,
+    load_json,
+    write_json,
+    list_files_in_directory,
+    load_tensor,
+)
 
 
 def test_dataclass_encoder():
@@ -31,7 +37,7 @@ def test_dataclass_encoder():
 
 
 @patch("builtins.open", new_callable=mock_open)
-@patch("utils.json")
+@patch("nba_tracking_data_commons.utils.json")
 def test_load_json(mock_json, mock_builtins_open):
     path = "dummy_path"
 
@@ -44,7 +50,7 @@ def test_load_json(mock_json, mock_builtins_open):
 
 @pytest.mark.parametrize("encoder", [None, Mock()])
 @patch("builtins.open", new_callable=mock_open)
-@patch("utils.json")
+@patch("nba_tracking_data_commons.utils.json")
 def test_write_json(mock_json, mock_builtins_open, encoder):
     path = "dummy_path"
     json_object = Mock()
@@ -65,7 +71,7 @@ def test_write_json(mock_json, mock_builtins_open, encoder):
         (".txt", ["file1", "file3"]),
     ],
 )
-@patch("utils.os.listdir", return_value=["file1.txt", "file2.csv", "file3.txt"])
+@patch("nba_tracking_data_commons.utils.os.listdir", return_value=["file1.txt", "file2.csv", "file3.txt"])
 def test_list_files_in_directory(mock_listdir, suffix, expected_result):
     path = "dummy_path"
 
@@ -75,7 +81,7 @@ def test_list_files_in_directory(mock_listdir, suffix, expected_result):
     assert result == expected_result
 
 
-@patch("utils.torch_load")
+@patch("nba_tracking_data_commons.utils.torch_load")
 def test_load_tensor(mock_torch_load):
     path = "dummy_path"
     tensor_name = "some-tensor"

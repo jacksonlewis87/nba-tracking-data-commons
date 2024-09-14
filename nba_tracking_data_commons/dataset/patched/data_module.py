@@ -8,7 +8,7 @@ from nba_tracking_data_commons.dataset.patched.data_config import PatchedDataCon
 from nba_tracking_data_commons.dataset.patched.utils import patchify
 from nba_tracking_data_commons.dataset.transforms import shuffle_players, normalize_coordinates, flip_normalized_x_axis
 from nba_tracking_data_commons.dataset.utils import get_data_split
-from utils import list_files_in_directory, load_tensor
+from nba_tracking_data_commons.utils import list_files_in_directory, load_tensor
 
 
 class PatchedDataset(Dataset):

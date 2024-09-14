@@ -1,7 +1,7 @@
 import torch
 from random import randint
 
-from constants import X_MIN, X_MAX, Y_MIN, Y_MAX, Z_MIN, Z_MAX
+from nba_tracking_data_commons.constants import X_MIN, X_MAX, Y_MIN, Y_MAX, Z_MIN, Z_MAX
 
 
 def random_crop(x: torch.tensor, length: int, dim: int) -> torch.tensor:

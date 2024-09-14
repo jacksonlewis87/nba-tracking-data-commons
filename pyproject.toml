@@ -1,13 +1,12 @@
 [tool.poetry]
 name = "nba-tracking-data-commons"
-version = "0.1.4"
+version = "0.1.5"
 description = "Repository housing common functionality for NBA SportVU tracking data"
 authors = ["Jackson Lewis"]
 readme = "README.md"
 packages = [{include = "nba_tracking_data_commons"}]
 
 [tool.pytest.ini_options]
-pythonpath = ["nba_tracking_data_commons"]
 testspath = ["tests"]
 addopts = "-p no:cacheprovider"
 

@@ -3,7 +3,7 @@ from unittest.mock import create_autospec, patch
 
 from pytorch_model_commons.data.data_config import DataConfig
 
-from constants import EVAL_GAME_IDS
+from nba_tracking_data_commons.constants import EVAL_GAME_IDS
 from nba_tracking_data_commons.dataset.utils import (
     create_data_split,
     get_data_split,
