@@ -100,7 +100,7 @@ class PatchedCollateFn:
         tracking_data = []
         for item in batch:
             x = item["tracking_data"]
-            T, E = x.shape[0]  # (N, E)
+            T, E = x.shape  # (T, E)
             if T < max_length:
                 # Pad with zeros to target_length
                 padding_size = max_length - T
