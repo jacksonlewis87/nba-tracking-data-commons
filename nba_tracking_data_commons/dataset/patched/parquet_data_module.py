@@ -20,20 +20,29 @@ class PatchedParquetDataset(Dataset):
         self.stage = stage
 
         # Initialize data storage
-        self.event_ids = []
         self.file_mapping = {}
 
-        parquet_files = [f for f in os.listdir(config.input_path) if f.endswith(".parquet") and f[:-8] in game_ids]
+        # Collect parquet file paths
+        parquet_files = [
+            os.path.join(config.input_path, f)
+            for f in os.listdir(config.input_path)
+            if f.endswith(".parquet") and f[:-8] in game_ids
+        ]
 
-        # map parquet files
-        for file in parquet_files:
-            file_path = os.path.join(config.input_path, file)
-            df = pq.read_table(file_path).to_pandas()
+        # Map parquet files
+        for file_path in parquet_files:
+            # Load parquet file
+            table = pq.read_table(file_path)
+            df = table.to_pandas()
+
+            # Map data by (game_id, event_id)
             for (game_id, event_id), group in df.groupby(["game_id", "event_id"]):
-                self.event_ids.append((game_id, event_id))
                 if (game_id, event_id) not in self.file_mapping:
                     self.file_mapping[(game_id, event_id)] = []
-                self.file_mapping[(game_id, event_id)].append(group)
+                self.file_mapping[(game_id, event_id)].append(file_path)
+
+        # Sorting by (game_id, event_id) to ensure the access pattern
+        self.event_ids = sorted(self.file_mapping.keys())
 
     def __len__(self):
         return len(self.event_ids)
@@ -42,9 +51,18 @@ class PatchedParquetDataset(Dataset):
         # Get game_id and event_id for this index
         game_id, event_id = self.event_ids[idx]
 
-        # Retrieve all rows for this (game_id, event_id)
-        groups = self.file_mapping[(game_id, event_id)]
-        df = pd.concat(groups, ignore_index=True)
+        # Retrieve file paths for this (game_id, event_id)
+        file_paths = self.file_mapping[(game_id, event_id)]
+
+        # Load data from parquet files
+        dfs = []
+        for file_path in file_paths:
+            table = pq.read_table(file_path)
+            df = table.to_pandas()
+            dfs.append(df[(df["game_id"] == game_id) & (df["event_id"] == event_id)])
+
+        # Concatenate all dataframes
+        df = pd.concat(dfs, ignore_index=True)
 
         # Extract flattened data
         flattened_data = df.drop(["game_id", "event_id"], axis=1).values
@@ -68,16 +86,35 @@ class PatchedParquetDataset(Dataset):
         return {"game_id": game_id, "event_id": event_id, "tracking_data": x}
 
 
-# def collate_fn(batch):
-#     game_ids = [item["game_id"] for item in batch]
-#     event_ids = torch.stack([item["event_id"] for item in batch])
-#     tracking_data = torch.stack([item["tracking_data"] for item in batch])
-#
-#     return {
-#         "game_id": game_ids,
-#         "event_id": event_ids,
-#         "tracking_data": tracking_data
-#     }
+class PatchedCollateFn:
+    def __init__(self, config: PatchedDataConfig, stage: str = "train"):
+        self.event_length = config.event_length
+        self.patch_pad_value = config.patch_pad_value
+        self.stage = stage
+
+    def __call__(self, batch):
+        game_ids = [item["game_id"] for item in batch]
+        event_ids = [item["event_id"] for item in batch]
+
+        if self.event_length:
+            tracking_data = []
+            for item in batch:
+                x = item["tracking_data"]
+                T = x.shape[0]  # (N, S)
+                if T > self.event_length:
+                    start_idx = torch.randint(0, T - self.event_length + 1, (1,)).item() if self.stage == "train" else 0
+                    end_idx = start_idx + self.event_length
+                    tracking_data += [x[start_idx:end_idx, :]]
+                elif T < self.event_length:
+                    # Pad with zeros to target_length
+                    padding_size = self.event_length - T
+                    padding = torch.full((padding_size, 30), self.patch_pad_value)
+                    tracking_data += [torch.cat((x, padding), dim=0)]
+            tracking_data = torch.stack(tracking_data)
+        else:
+            tracking_data = torch.stack([item["tracking_data"] for item in batch])
+
+        return {"game_id": game_ids, "event_id": event_ids, "tracking_data": tracking_data}
 
 
 class PatchedParquetDataModule(LightningDataModule):
@@ -112,15 +149,17 @@ class PatchedParquetDataModule(LightningDataModule):
         return DataLoader(
             self.train_dataset,
             batch_size=self.config.batch_size,
+            collate_fn=PatchedCollateFn(config=self.config),
             num_workers=self.config.num_workers,
             prefetch_factor=self.config.prefetch_factor,
-            shuffle=True,
+            # shuffle=True,  # can't shuffle if using efficient memory
         )
 
     def val_dataloader(self) -> DataLoader:
         return DataLoader(
             self.val_dataset,
             batch_size=self.config.batch_size,
+            collate_fn=PatchedCollateFn(config=self.config),
             num_workers=self.config.num_workers,
             prefetch_factor=self.config.prefetch_factor,
         )

@@ -10,3 +10,4 @@ class PatchedDataConfig(DataConfig):
     shuffle_players: bool
     include_z: bool
     patch_pad_value: Optional[float]
+    event_length: Optional[int]

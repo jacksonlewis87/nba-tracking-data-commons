@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nba-tracking-data-commons"
-version = "0.1.11"
+version = "0.1.12"
 description = "Repository housing common functionality for NBA SportVU tracking data"
 authors = ["Jackson Lewis"]
 readme = "README.md"

@@ -32,8 +32,16 @@ def shuffle_players(x: torch.tensor, shuffle_players: bool) -> torch.tensor:
 
 
 def shuffle_tensor_dim(x: torch.tensor, dim: int) -> torch.tensor:
+    # Generate random permutation of indices
     idx = torch.randperm(x.shape[dim])
-    return torch.index_select(x, dim=dim, index=torch.tensor(idx, dtype=torch.long))
+
+    # Convert indices to tensor and ensure proper detachment
+    idx_tensor = idx.clone().detach()
+
+    # Shuffle the specified dimension
+    shuffled_tensor = torch.index_select(x, dim=dim, index=idx_tensor)
+
+    return shuffled_tensor
 
 
 def normalize_coordinates(x: torch.tensor) -> torch.tensor:
