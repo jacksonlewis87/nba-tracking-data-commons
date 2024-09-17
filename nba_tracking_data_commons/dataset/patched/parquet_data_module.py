@@ -90,7 +90,7 @@ class PatchedParquetDataModule(LightningDataModule):
         self.setup(stage=stage)
 
     def setup(self, stage: Optional[str] = None):
-        game_ids = list_files_in_directory(path=self.config.input_path, suffix=".pt")
+        game_ids = list_files_in_directory(path=self.config.input_path, suffix=".parquet")
 
         data_split = get_data_split(
             config=self.config,
