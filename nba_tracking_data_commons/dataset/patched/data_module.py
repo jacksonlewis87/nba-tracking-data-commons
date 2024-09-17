@@ -31,6 +31,7 @@ class PatchedDataset(Dataset):
             if self.stage != "eval":
                 event = shuffle_players(x=event, shuffle_players=self.config.shuffle_players)
                 event = flip_normalized_x_axis(x=event)
+            event = event.permute(2, 1, 0)  # (T, P, C) -> (C, P, T)
             event = patchify(x=event, patch_length=self.config.patch_size, padded_value=self.config.patch_pad_value)
             x += [event]
 
