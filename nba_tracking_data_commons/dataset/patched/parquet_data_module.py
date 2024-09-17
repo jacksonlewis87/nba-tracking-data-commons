@@ -96,23 +96,19 @@ class PatchedCollateFn:
         game_ids = [item["game_id"] for item in batch]
         event_ids = [item["event_id"] for item in batch]
 
-        if self.event_length:
-            tracking_data = []
-            for item in batch:
-                x = item["tracking_data"]
-                T = x.shape[0]  # (N, S)
-                if T > self.event_length:
-                    start_idx = torch.randint(0, T - self.event_length + 1, (1,)).item() if self.stage == "train" else 0
-                    end_idx = start_idx + self.event_length
-                    tracking_data += [x[start_idx:end_idx, :]]
-                elif T < self.event_length:
-                    # Pad with zeros to target_length
-                    padding_size = self.event_length - T
-                    padding = torch.full((padding_size, 30), self.patch_pad_value)
-                    tracking_data += [torch.cat((x, padding), dim=0)]
-            tracking_data = torch.stack(tracking_data)
-        else:
-            tracking_data = torch.stack([item["tracking_data"] for item in batch])
+        max_length = max([item["tracking_data"].shape[0] for item in batch])
+        tracking_data = []
+        for item in batch:
+            x = item["tracking_data"]
+            T, E = x.shape[0]  # (N, E)
+            if T < max_length:
+                # Pad with zeros to target_length
+                padding_size = max_length - T
+                padding = torch.full((padding_size, E), self.patch_pad_value)
+                tracking_data += [torch.cat((x, padding), dim=0)]
+            else:
+                tracking_data += [x]
+        tracking_data = torch.stack(tracking_data)
 
         return {"game_id": game_ids, "event_id": event_ids, "tracking_data": tracking_data}
 
