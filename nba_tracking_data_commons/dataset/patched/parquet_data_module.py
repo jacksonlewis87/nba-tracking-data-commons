@@ -73,14 +73,15 @@ class PatchedParquetDataset(Dataset):
         # Reshape to (T, P, C)
         tracking_data = flattened_data.reshape(T, 11, 3)
 
-        # Convert to PyTorch tensor
+        # Convert to tensor
         x = torch.tensor(tracking_data, dtype=torch.float32)
         x = normalize_coordinates(x=x)
+        x = torch.einsum("ijk->ikj", x)
 
         if self.stage != "eval":
             x = shuffle_players(x=x, shuffle_players=self.config.shuffle_players)
             x = flip_normalized_x_axis(x=x)
-        x = x.permute(2, 1, 0)  # (T, P, C) -> (C, P, T)
+        x = x.permute(1, 2, 0)  # (T, C, P) -> (C, P, T)
         x = patchify(x=x, patch_length=self.config.patch_size, padded_value=self.config.patch_pad_value)
 
         return {"game_id": game_id, "event_id": event_id, "tracking_data": x}

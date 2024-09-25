@@ -25,8 +25,8 @@ def shuffle_players(x: torch.tensor, shuffle_players: bool) -> torch.tensor:
         return x
 
     # dont shuffle ball (0), and keep teams together (1-5, 6-10)
-    x[1:6] = shuffle_tensor_dim(x=x[1:6], dim=0)
-    x[6:] = shuffle_tensor_dim(x=x[6:], dim=0)
+    x[:, :, 1:6] = shuffle_tensor_dim(x=x[:, :, 1:6], dim=2)
+    x[:, :, 6:] = shuffle_tensor_dim(x=x[:, :, 6:], dim=2)
 
     return x
 

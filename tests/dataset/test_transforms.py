@@ -34,13 +34,13 @@ def test_random_crop(size, dim, expected_return_size):
 
 @patch("nba_tracking_data_commons.dataset.transforms.shuffle_tensor_dim")
 def test_shuffle_players(mock_shuffle_tensor_dim):
-    ball = [torch.zeros(3)]
-    team_0 = [torch.tensor([1, 1, 1]) for _ in range(5)]
-    team_1 = [torch.tensor([2, 2, 2]) for _ in range(5)]
-    x = torch.stack(ball + team_0 + team_1, dim=0)
+    ball = [torch.zeros(3).unsqueeze(0)]
+    team_0 = [torch.tensor([[1, 1, 1]]) for _ in range(5)]
+    team_1 = [torch.tensor([[2, 2, 2]]) for _ in range(5)]
+    x = torch.stack(ball + team_0 + team_1, dim=0).permute(1, 2, 0)
     team_0 = torch.stack(team_0, dim=0)
     team_1 = torch.stack(team_1, dim=0)
-    mock_shuffle_tensor_dim.return_value = torch.zeros(5, 3)
+    mock_shuffle_tensor_dim.return_value = torch.zeros(1, 3, 5)
 
     result = shuffle_players(x=x, shuffle_players=True)
 
@@ -49,7 +49,7 @@ def test_shuffle_players(mock_shuffle_tensor_dim):
     #     call(x=team_0, dim=0),
     #     call(x=team_1, dim=0),
     # ])
-    assert torch.all(torch.eq(result, torch.zeros(11, 3)))
+    assert torch.all(torch.eq(result, torch.zeros(1, 3, 11)))
 
 
 @pytest.mark.parametrize("dim", [0, 1, 2])
